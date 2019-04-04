@@ -1,4 +1,15 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IVoteSubjectId {
+  questionId?: number,
+  answerId?: number,
+}
+
+export interface IVote extends IVoteSubjectId, Document {
+  _id: number,
+  userId: number,
+  value: number,
+}
 
 const voteSchema = new Schema({
     _id: { type: Number, required: true },
@@ -13,6 +24,6 @@ const voteSchema = new Schema({
     },
 });
 
-const Vote = mongoose.model("Vote", voteSchema)
+const Vote = mongoose.model<IVote>("Vote", voteSchema)
 
 export default Vote;

@@ -1,15 +1,5 @@
-import Vote from './vote.model';
+import Vote, {IVoteSubjectId, IVote} from './vote.model';
 
-export interface IVoteSubjectId {
-  questionId?: number,
-  answerId?: number,
-}
-
-export interface IVote extends IVoteSubjectId {
-  _id: number,
-  userId: number,
-  value: number,
-}
 
 export default class VoteService {
 

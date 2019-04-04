@@ -1,7 +1,7 @@
 import rewire from 'rewire';
 
-import VoteService, { IVoteSubjectId } from "./../../src/vote/vote.service";
-import Vote from "./../../src/vote/vote.model";
+import VoteService from "./../../src/vote/vote.service";
+import Vote, { IVoteSubjectId } from "./../../src/vote/vote.model";
 import { exportAllDeclaration } from "@babel/types";
 
 const VoteServiceRewire = rewire("./../../dist/src/vote/vote.service");
