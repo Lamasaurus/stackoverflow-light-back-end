@@ -1,0 +1,42 @@
+{
+  "name": "stackoverflow-light-back-end",
+  "version": "1.0.0",
+  "description": "The backend for the Stackoverflow light application",
+  "scripts": {
+    "clean": "rimraf dist",
+    "start": "npm-run-all --parallel watch:build watch:server --print-label",
+    "build": "tsc",
+    "watch:build": "tsc --watch",
+    "watch:server": "nodemon './dist/src/app.js' --watch './dist'",
+    "test": "jest --collectCoverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lamasaurus/stackoverflow-light-back-end.git"
+  },
+  "author": "Sander Vanhove",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Lamasaurus/stackoverflow-light-back-end/issues"
+  },
+  "homepage": "https://github.com/Lamasaurus/stackoverflow-light-back-end#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "express-jwt": "^5.3.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.2.2",
+    "mongoose": "^5.4.22",
+    "npm-run-all": "^4.1.5",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.4.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "jest": "^24.7.1",
+    "nodemon": "^1.18.10",
+    "rewire": "^4.0.1",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.1"
+  }
+}

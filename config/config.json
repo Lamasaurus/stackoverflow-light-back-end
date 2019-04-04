@@ -1,0 +1,11 @@
+{
+  "mongo": {
+    "uri": "mongodb://admin:pwd@localhost:27017/data?authSource=admin",
+    "options": {
+      "useCreateIndex": true,
+      "useNewUrlParser": true
+    }
+  },
+  "port": 4000,
+  "numTopQuestions": 10
+}
