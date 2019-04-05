@@ -53,9 +53,9 @@ describe("Getting votes", () => {
       }
     ];
 
-    Vote.find = () => {
+    Vote.find = (condition ) => {
       return {
-        exec: condition =>
+        exec: async () =>
           new Promise(() => {
             if (condition.questionId === 1) return questionVotes;
             else if (condition.answerId === 1) return answerVotes;
@@ -107,7 +107,7 @@ describe("Add vote", () => {
   beforeEach(() => {
     Vote.update = (conditions: any , update: any, options: any) => {
       return {
-        exec: () => {
+        exec: async () => {
           expect(update.userId).toEqual(conditions.userId);
           expect(update.value).toBeTruthy();
           expect(checkNumberIds({questionId: update.questionId, answerId: update.answerId})).toBeUndefined();
@@ -156,9 +156,9 @@ describe("Get vote total", () => {
       }
     ];
 
-    Vote.find = () => {
+    Vote.find = (condition: IVoteSubjectId) => {
       return {
-        exec: (condition: IVoteSubjectId) =>
+        exec: async () =>
           new Promise(() => {
             if (condition.questionId === 1) return questionVotes;
             else if (condition.answerId === 1) return answerVotes;

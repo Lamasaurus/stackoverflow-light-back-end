@@ -103,6 +103,37 @@ describe("Get top questions", () => {
   });
 });
 
+describe("Get question by id", () => {
+  beforeEach(() => {
+    Question.findById = (id: number) => {
+      return {
+        exec: async () => {
+          return {
+            _id: 1,
+            userId: 1,
+            title: "A title",
+            text: "Some text.",
+            postTime: 1000
+          };
+        }
+      };
+    };
+  });
+
+  it("should find one question with a vote total.", () => {
+    QuestionService.getQuestionById(1).then(question => {
+      return expect(question).toEqual({
+        _id: 1,
+        userId: 1,
+        title: "A title",
+        text: "Some text.",
+        postTime: 1000,
+        voteTotal: 1
+      });
+    });
+  });
+});
+
 describe("Add Question", () => {
   beforeEach(() => {
     jest.mock("./../../src/question/question.model.ts", () => {
@@ -127,9 +158,9 @@ describe("Add Question", () => {
 
 describe("Update Question", () => {
   beforeEach(() => {
-    Question.findIdAndUpdate = (id, title, text) => {
+    Question.findByIdAndUpdate = (id, { title, text }) => {
       return {
-        exec: () => {
+        exec: async () => {
           expect(id).toEqual(1);
           expect(title).toEqual("A Title");
           expect(text).toEqual("Some Text.");
@@ -145,10 +176,10 @@ describe("Update Question", () => {
 
 describe("Delete Question", () => {
   beforeEach(() => {
-    Question.deleteOne = (id) => {
+    Question.deleteOne = conditions => {
       return {
-        exec: () => {
-          expect(id).toEqual(1);
+        exec: async () => {
+          expect(conditions._id).toEqual(1);
         }
       };
     };
