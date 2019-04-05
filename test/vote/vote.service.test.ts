@@ -158,7 +158,7 @@ describe("Get vote total", () => {
 
     Vote.find = () => {
       return {
-        exec: condition =>
+        exec: (condition: IVoteSubjectId) =>
           new Promise(() => {
             if (condition.questionId === 1) return questionVotes;
             else if (condition.answerId === 1) return answerVotes;

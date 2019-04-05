@@ -3,6 +3,9 @@ import Vote, {IVoteSubjectId, IVote} from './vote.model';
 
 export default class VoteService {
 
+  /*
+  * Check if there is exactly one id provided.
+  */
   private static checkNumberIds({questionId, answerId}: IVoteSubjectId) {
     if ((!questionId && !answerId) || (questionId && answerId))
       throw new Error("Vote Service needs exactly one id.");
