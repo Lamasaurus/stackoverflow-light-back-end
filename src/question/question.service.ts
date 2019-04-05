@@ -33,6 +33,14 @@ export default class QuestionService {
   }
 
   /*
+  * Get One specific question.
+  */
+  public static async getQuestionById(questionId: number): Promise<IQuestion> {
+    const question = await Question.findById(questionId).exec();
+    return this.addQuestionVotes(question);
+  }
+
+  /*
    * Get the top NUMBER_OF_TOP_QUESTION questions.
    * @param increment: number, defines what the page
    */
@@ -44,9 +52,8 @@ export default class QuestionService {
     // Add the vote total to each question
     // This has to be done in a for...of because map, reduce and sort don't accept
     // async functions.
-    for (let question of questions) {
+    for (let question of questions)
       question = await this.addQuestionVotes(question);
-    }
 
     // Sort the questions
     const popularQuestions = await questions.sort((q1, q2) => {
