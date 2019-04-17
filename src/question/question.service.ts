@@ -1,3 +1,5 @@
+import { ObjectId } from "../helpers/mongoose.helper";
+
 import Question, { IQuestion } from "./question.model";
 import VoteService from "./../vote/vote.service";
 
@@ -26,28 +28,23 @@ export default class QuestionService {
   }
 
   /*
-   * Get all the questions.
+   * Get One specific question.
    */
-  private static async getAllQuestions(): Promise<IQuestion[]> {
-    return await Question.find().exec();
-  }
-
-  /*
-  * Get One specific question.
-  */
-  public static async getQuestionById(questionId: number): Promise<IQuestion> {
+  public static async getQuestionById(
+    questionId: ObjectId
+  ): Promise<IQuestion> {
     const question = await Question.findById(questionId).exec();
     return this.addQuestionVotes(question);
   }
 
   /*
-   * Get the top NUMBER_OF_TOP_QUESTION questions.
+   * Get the top questions as defined in the config file.
    * @param increment: number, defines what the page
    */
   public static async getTopQuestions(
     increment: number = 0
   ): Promise<IQuestion[]> {
-    const questions: IQuestion[] = await this.getAllQuestions();
+    const questions: IQuestion[] = await Question.find().lean().exec();
 
     // Add the vote total to each question
     // This has to be done in a for...of because map, reduce and sort don't accept
@@ -67,20 +64,31 @@ export default class QuestionService {
     );
   }
 
-  public static addQuestion(userId: number, title: string, text: string) {
-    const newQuestion = new Question({userId, title, text});
-    newQuestion.save();
+  public static addQuestion(
+    userId: ObjectId,
+    title: string,
+    text: string
+  ): Promise<any> {
+    const newQuestion = new Question({ userId, title, text });
+    return newQuestion.save();
   }
 
   public static updateQuestion(
-    questionId: number,
+    userId: ObjectId,
+    questionId: ObjectId,
     title: string,
     text: string
-  ) {
-    Question.findByIdAndUpdate(questionId, { title, text }).exec();
+  ): Promise<any> {
+    return Question.findOneAndUpdate(
+      { _id: questionId, userId },
+      { title, text }
+    ).exec();
   }
 
-  public static deleteQuestion(questionId: number) {
-    Question.deleteOne({ _id: questionId }).exec();
+  public static deleteQuestion(
+    userId: ObjectId,
+    questionId: ObjectId
+  ): Promise<any> {
+    return Question.deleteOne({ _id: questionId, userId }).exec();
   }
 }

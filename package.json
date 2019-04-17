@@ -8,6 +8,7 @@
     "build": "tsc",
     "watch:build": "tsc --watch",
     "watch:server": "nodemon './dist/src/app.js' --watch './dist'",
+    "watch:server:debug": "nodemon --inspect './dist/src/app.js' --watch './dist'",
     "test": "jest --collectCoverage"
   },
   "repository": {
@@ -21,7 +22,9 @@
   },
   "homepage": "https://github.com/Lamasaurus/stackoverflow-light-back-end#readme",
   "dependencies": {
+    "@types/jsonwebtoken": "^8.3.2",
     "body-parser": "^1.18.3",
+    "crypto": "^1.0.1",
     "express": "^4.16.4",
     "express-jwt": "^5.3.1",
     "jsonwebtoken": "^8.5.1",

@@ -1,25 +1,28 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
+import { ObjectId, ISchemaBasis } from "../helpers/mongoose.helper";
 
-export interface IQuestion extends Document {
-  _id: number,
-  userId: number,
-  title: string,
-  text: string,
-  postTime: number,
-  voteTotal?: number,
+export interface IQuestion extends ISchemaBasis {
+  userId: ObjectId;
+  title: string;
+  text: string;
+  postTime: number;
+  voteTotal?: number;
 }
 
-const questionSchema = new Schema({
-    userId: { type: Number, required: true },
+const questionSchema = new Schema(
+  {
+    userId: { type: ObjectId, required: true },
     title: { type: String, required: true },
     text: { type: String, required: true },
     postTime: { type: Date, required: false }
-}, {
+  },
+  {
     timestamps: {
-      createdAt: 'postTime'
-    },
-});
+      createdAt: "postTime"
+    }
+  }
+);
 
-const Question = mongoose.model<IQuestion>("Question", questionSchema)
+const Question = mongoose.model<IQuestion>("Question", questionSchema);
 
 export default Question;

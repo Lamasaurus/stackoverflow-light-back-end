@@ -1,11 +1,25 @@
+import mongoose from "mongoose";
+const ObjectId = mongoose.Types.ObjectId;
+
 import rewire from 'rewire';
 
 import VoteService from "./../../src/vote/vote.service";
 import Vote, { IVoteSubjectId } from "./../../src/vote/vote.model";
-import { exportAllDeclaration } from "@babel/types";
+import { exportAllDeclaration, identifier } from "@babel/types";
 
 const VoteServiceRewire = rewire("./../../dist/src/vote/vote.service");
 const checkNumberIds = VoteServiceRewire.__get__('VoteService.checkNumberIds');
+
+const voteIds = [
+  new ObjectId(),
+  new ObjectId(),
+  new ObjectId(),
+  new ObjectId()
+]
+
+const userId = new ObjectId();
+const questionId = new ObjectId();
+const answerId = new ObjectId();
 
 describe("Number ids", () => {
   it("Should run with one id", () => {
@@ -26,30 +40,30 @@ describe("Getting votes", () => {
   beforeEach(() => {
     const questionVotes = [
       {
-        _id: 1,
-        userId: 1,
+        _id: voteIds[0],
+        userId: userId,
         value: 1,
-        questionId: 1
+        questionId: questionId
       },
       {
-        _id: 2,
-        userId: 2,
+        _id: voteIds[1],
+        userId: userId,
         value: 1,
-        questionId: 1
+        questionId: questionId
       }
     ];
     const answerVotes = [
       {
-        _id: 3,
-        userId: 1,
+        _id: voteIds[2],
+        userId: userId,
         value: 1,
-        answerId: 1
+        answerId: answerId
       },
       {
-        _id: 4,
-        userId: 2,
+        _id: voteIds[3],
+        userId: userId,
         value: 1,
-        answerId: 1
+        answerId: answerId
       }
     ];
 
@@ -57,46 +71,46 @@ describe("Getting votes", () => {
       return {
         exec: async () =>
           new Promise(() => {
-            if (condition.questionId === 1) return questionVotes;
-            else if (condition.answerId === 1) return answerVotes;
+            if (condition.questionId === questionId) return questionVotes;
+            else if (condition.answerId === answerId) return answerVotes;
           })
       };
     };
   });
 
   it("should return votes for questions", () => {
-    VoteService.getVotesForQuestion(1).then(votes => {
+    VoteService.getVotesForQuestion(questionId).then(votes => {
       expect(votes).toEqual([
         {
-          _id: 1,
-          userId: 1,
+          _id: voteIds[0],
+          userId: userId,
           value: 1,
-          questionId: 1
+          questionId: questionId
         },
         {
-          _id: 2,
-          userId: 2,
+          _id: voteIds[1],
+          userId: userId,
           value: 1,
-          questionId: 1
+          questionId: questionId
         }
       ]);
     });
   });
 
   it("should return votes for answers", () => {
-    VoteService.getVotesForAnswer(1).then(votes => {
+    VoteService.getVotesForAnswer(answerId).then(votes => {
       expect(votes).toEqual([
         {
-          _id: 1,
-          userId: 1,
+          _id: voteIds[2],
+          userId: userId,
           value: 1,
-          questionId: 1
+          answerId: answerId
         },
         {
-          _id: 2,
-          userId: 2,
+          _id: voteIds[3],
+          userId: userId,
           value: 1,
-          questionId: 1
+          answerId: answerId
         }
       ]);
     });
@@ -117,11 +131,11 @@ describe("Add vote", () => {
   });
 
   it("should add a question", () => {
-    VoteService.addQuestionVote(1, 1, 1);
+    VoteService.addQuestionVote(userId, 1, questionId);
   });
 
   it("should add a answer", () => {
-    VoteService.addAnswerVote(1, 1, 1);
+    VoteService.addAnswerVote(userId, 1, answerId);
   });
 });
 
@@ -129,30 +143,30 @@ describe("Get vote total", () => {
   beforeEach(() => {
     const questionVotes = [
       {
-        _id: 1,
-        userId: 1,
+        _id: voteIds[0],
+        userId: userId,
         value: 1,
-        questionId: 1
+        questionId: questionId
       },
       {
-        _id: 2,
-        userId: 2,
+        _id: voteIds[1],
+        userId: userId,
         value: 1,
-        questionId: 1
+        questionId: questionId
       }
     ];
     const answerVotes = [
       {
-        _id: 3,
-        userId: 1,
+        _id: voteIds[2],
+        userId: userId,
         value: 1,
-        answerId: 1
+        answerId: answerId
       },
       {
-        _id: 4,
-        userId: 2,
+        _id: voteIds[3],
+        userId: userId,
         value: -1,
-        answerId: 1
+        answerId: answerId
       }
     ];
 
@@ -160,20 +174,20 @@ describe("Get vote total", () => {
       return {
         exec: async () =>
           new Promise(() => {
-            if (condition.questionId === 1) return questionVotes;
-            else if (condition.answerId === 1) return answerVotes;
+            if (condition.questionId === questionId) return questionVotes;
+            else if (condition.answerId === answerId) return answerVotes;
           })
       };
     };
   });
 
   it("should get the vote total for questions", () => {
-    VoteService.getVoteTotalForQuestion(1)
+    VoteService.getVoteTotalForQuestion(questionId)
       .then(total => expect(total).toEqual(2));
   });
 
   it("should get the vote total for answers", () => {
-    VoteService.getVoteTotalForAnswer(1)
+    VoteService.getVoteTotalForAnswer(answerId)
       .then(total => expect(total).toEqual(0));
   });
 });

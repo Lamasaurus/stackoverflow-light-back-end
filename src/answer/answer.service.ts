@@ -1,6 +1,8 @@
 import Answer, { IAnswer } from "./answer.model";
 import VoteService from "./../vote/vote.service";
 
+import { ObjectId } from "../helpers/mongoose.helper";
+
 export default class AnswerService {
   /*
    * Get the vote total from the vote service and add it to the answer object.
@@ -13,10 +15,10 @@ export default class AnswerService {
    * Get all the answers for a certain question.
    */
   public static async getAnswersForQuestion(
-    questionId: number
+    questionId: ObjectId
   ): Promise<IAnswer[]> {
     // Find the answers to the question
-    const answers = await Answer.find({ questionId }).exec();
+    const answers = await Answer.find({ questionId }).lean().exec();
 
     // Add the vote total
     for (const answer of answers) await this.addAnswerVotes(answer);
@@ -24,16 +26,20 @@ export default class AnswerService {
     return answers;
   }
 
-  public static addAnswer(userId: number, questionId: number, text: string) {
+  public static addAnswer(
+    userId: ObjectId,
+    questionId: ObjectId,
+    text: string
+  ): Promise<any> {
     const newAnswer = new Answer({ userId, questionId, text });
-    newAnswer.save();
+    return newAnswer.save();
   }
 
-  public static updateAnswer(answerId: number, text: string) {
-    Answer.findByIdAndUpdate(answerId, { text }).exec();
+  public static updateAnswer(userId: ObjectId, answerId: ObjectId, text: string): Promise<any> {
+    return Answer.findOneAndUpdate({ _id: answerId, userId }, { text }).exec();
   }
 
-  public static deleteAnswer(answerId: number) {
-    Answer.deleteOne({ _id: answerId }).exec();
+  public static deleteAnswer(userId: ObjectId, answerId: ObjectId): Promise<any> {
+    return Answer.deleteOne({ _id: answerId, userId }).exec();
   }
 }

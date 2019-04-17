@@ -7,5 +7,11 @@
     }
   },
   "port": 4000,
-  "numTopQuestions": 10
+  "numTopQuestions": 10,
+  "authentication": {
+    "secret": "E48196FF3E564BC8446C751412B0A3995A2D12FCF0F09A507EC1172EFD5B01AF",
+    "options": {
+      "expiresIn": "1h"
+    }
+  }
 }

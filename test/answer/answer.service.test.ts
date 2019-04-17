@@ -1,9 +1,14 @@
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
+const ObjectId = mongoose.Types.ObjectId;
 
 import AnswerService from "./../../src/answer/answer.service";
 
 import Answer from "./../../src/answer/answer.model";
 import VoteService from "./../../src/vote/vote.service";
+
+const answerId = new ObjectId();
+const userId = new ObjectId();
+const questionId = new ObjectId();
 
 describe("Get answer for question", () => {
   beforeEach(() => {
@@ -11,9 +16,9 @@ describe("Get answer for question", () => {
 
     const answers = [
       {
-        _id: 1,
-        userId: 1,
-        questionId: 1,
+        _id: answerId,
+        userId: userId,
+        questionId: questionId,
         text: "Some text.",
         postTime: 0
       }
@@ -21,27 +26,28 @@ describe("Get answer for question", () => {
 
     Answer.find = () => {
       return {
-        exec: async () => {
-          return answers;
+        lean: () => {
+          return {
+            exec: async () => {
+              return answers;
+            }
+          };
         }
       };
     };
   });
 
   it("should return the answers with vote total.", () => {
-    AnswerService.getAnswersForQuestion(1).then(answer => {
-      expect(answer).toEqual({
-        _id: 1,
-        userId: 1,
-        questionId: 1,
-        text: "Some text.",
-        postTime: 0,
-        voteTotal: 1
-      });
+    expect(AnswerService.getAnswersForQuestion(1)).resolves.toEqual({
+      _id: answerId,
+      userId: userId,
+      questionId: questionId,
+      text: "Some text.",
+      postTime: 0,
+      voteTotal: 1
     });
   });
 });
-
 describe("Add answer", () => {
   beforeEach(() => {
     jest.mock("./../../src/answer/answer.model.ts", () => {
@@ -49,8 +55,8 @@ describe("Add answer", () => {
         (userId: number, questionId: number, text: string): Model => {
           return {
             save: () => {
-              expect(userId).toEqual(1);
-              expect(questionId).toEqual(1);
+              expect(userId).toEqual(userId);
+              expect(questionId).toEqual(questionId);
               expect(text).toEqual("Some Text.");
             }
           };
@@ -60,16 +66,19 @@ describe("Add answer", () => {
   });
 
   it("should add a new answer.", () => {
-    AnswerService.addAnswer(1, 1, "Some Text.");
+    AnswerService.addAnswer(userId, answerId, "Some Text.");
   });
 });
 
 describe("Update answer", () => {
   beforeEach(() => {
-    Answer.findByIdAndUpdate = (id: number, update: any) => {
+    Answer.findOneAndUpdate = (params: any, update: any) => {
       return {
         exec: async () => {
-          expect(id).toEqual(1);
+          expect(params).toEqual({
+            _id: answerId,
+            userId: userId
+          });
           expect(update).toEqual({
             text: "Some Text."
           });
@@ -79,22 +88,22 @@ describe("Update answer", () => {
   });
 
   it("should update with the right parameters", () => {
-    AnswerService.updateAnswer(1, "Some Text.");
+    AnswerService.updateAnswer(userId, answerId, "Some Text.");
   });
 });
 
 describe("Delete answer", () => {
   beforeEach(() => {
-    Answer.deleteOne = (id: number) => {
+    Answer.deleteOne = (params: any) => {
       return {
         exec: async () => {
-          expect(id).toEqual({ _id: 1 });
+          expect(params).toEqual({ _id: answerId, userId: userId });
         }
       };
     };
   });
 
   it("should update with the right parameters", () => {
-    AnswerService.deleteAnswer(1);
+    AnswerService.deleteAnswer(userId, answerId);
   });
 });

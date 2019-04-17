@@ -1,4 +1,5 @@
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
+const ObjectId = mongoose.Types.ObjectId;
 
 import QuestionService from "./../../src/question/question.service";
 
@@ -7,38 +8,53 @@ import VoteService from "./../../src/vote/vote.service";
 
 import config from "./../../config/config.json";
 
+const questionIds = [
+  new ObjectId(),
+  new ObjectId(),
+  new ObjectId(),
+  new ObjectId()
+];
+
+const userIds = [
+  new ObjectId(),
+  new ObjectId(),
+  new ObjectId(),
+  new ObjectId()
+];
+
 describe("Get top questions", () => {
   beforeEach(() => {
     config.numTopQuestions = 3;
 
-    VoteService.getVoteTotalForQuestion = async (questionId: number) =>
-      questionId;
+    VoteService.getVoteTotalForQuestion = async (
+      questionId: mongoose.Schema.Types.ObjectId
+    ) => questionIds.indexOf(questionId);
 
     const questions: IQuestion[] = [
       {
-        _id: 1,
-        userId: 1,
+        _id: questionIds[0],
+        userId: userIds[0],
         title: "A title",
         text: "Some text.",
         postTime: 1000
       },
       {
-        _id: 2,
-        userId: 2,
+        _id: questionIds[1],
+        userId: userIds[1],
         title: "A title",
         text: "Some text.",
         postTime: 1000
       },
       {
-        _id: 3,
-        userId: 2,
+        _id: questionIds[2],
+        userId: userIds[2],
         title: "A title",
         text: "Some text.",
         postTime: 1000
       },
       {
-        _id: 4,
-        userId: 3,
+        _id: questionIds[3],
+        userId: userIds[3],
         title: "A title",
         text: "Some text.",
         postTime: 1000
@@ -47,8 +63,12 @@ describe("Get top questions", () => {
 
     Question.find = () => {
       return {
-        exec: async () => {
-          return questions;
+        lean: () => {
+          return {
+            exec: async () => {
+              return questions;
+            }
+          };
         }
       };
     };
@@ -59,28 +79,28 @@ describe("Get top questions", () => {
       expect(topQuestions).toHaveLength(3);
       expect(topQuestions).toEqual([
         {
-          _id: 4,
-          userId: 3,
-          title: "A title",
-          text: "Some text.",
-          postTime: 1000,
-          voteTotal: 4
-        },
-        {
-          _id: 3,
-          userId: 2,
+          _id: questionIds[3],
+          userId: userIds[3],
           title: "A title",
           text: "Some text.",
           postTime: 1000,
           voteTotal: 3
         },
         {
-          _id: 2,
-          userId: 2,
+          _id: questionIds[2],
+          userId: userIds[2],
           title: "A title",
           text: "Some text.",
           postTime: 1000,
           voteTotal: 2
+        },
+        {
+          _id: questionIds[1],
+          userId: userIds[1],
+          title: "A title",
+          text: "Some text.",
+          postTime: 1000,
+          voteTotal: 1
         }
       ]);
     });
@@ -91,12 +111,12 @@ describe("Get top questions", () => {
       expect(topQuestions).toHaveLength(1);
       expect(topQuestions).toEqual([
         {
-          _id: 1,
-          userId: 1,
+          _id: questionIds[0],
+          userId: userIds[0],
           title: "A title",
           text: "Some text.",
           postTime: 1000,
-          voteTotal: 1
+          voteTotal: 0
         }
       ]);
     });
@@ -105,12 +125,12 @@ describe("Get top questions", () => {
 
 describe("Get question by id", () => {
   beforeEach(() => {
-    Question.findById = (id: number) => {
+    Question.findById = (id: mongoose.Schema.Types.ObjectId) => {
       return {
         exec: async () => {
           return {
-            _id: 1,
-            userId: 1,
+            _id: questionIds[0],
+            userId: userIds[0],
             title: "A title",
             text: "Some text.",
             postTime: 1000
@@ -121,14 +141,14 @@ describe("Get question by id", () => {
   });
 
   it("should find one question with a vote total.", () => {
-    QuestionService.getQuestionById(1).then(question => {
+    QuestionService.getQuestionById(userIds[0]).then(question => {
       return expect(question).toEqual({
-        _id: 1,
-        userId: 1,
+        _id: questionIds[0],
+        userId: userIds[0],
         title: "A title",
         text: "Some text.",
         postTime: 1000,
-        voteTotal: 1
+        voteTotal: 0
       });
     });
   });
@@ -138,10 +158,14 @@ describe("Add Question", () => {
   beforeEach(() => {
     jest.mock("./../../src/question/question.model.ts", () => {
       return jest.fn().mockImplementation(
-        (userId: number, title: string, text: string): Model => {
+        (
+          userId: mongoose.Schema.Types.ObjectId,
+          title: string,
+          text: string
+        ): Model => {
           return {
             save: () => {
-              expect(userId).toEqual(1);
+              expect(userId).toEqual(userId[0]);
               expect(title).toEqual("A title");
               expect(text).toEqual("Some Text.");
             }
@@ -152,16 +176,19 @@ describe("Add Question", () => {
   });
 
   it("should add a new question with the right parameters", () => {
-    QuestionService.addQuestion(1, "A title", "Some text.");
+    QuestionService.addQuestion(userIds[0], "A title", "Some text.");
   });
 });
 
 describe("Update Question", () => {
   beforeEach(() => {
-    Question.findByIdAndUpdate = (id, { title, text }) => {
+    Question.findOneAndUpdate = (params, { title, text }) => {
       return {
         exec: async () => {
-          expect(id).toEqual(1);
+          expect(params).toEqual({
+            _id: questionIds[0],
+            userId: userIds[0]
+          });
           expect(title).toEqual("A Title");
           expect(text).toEqual("Some Text.");
         }
@@ -170,7 +197,12 @@ describe("Update Question", () => {
   });
 
   it("should update the right question", () => {
-    QuestionService.updateQuestion(1, "A Title", "Some Text.");
+    QuestionService.updateQuestion(
+      userIds[0],
+      questionIds[0],
+      "A Title",
+      "Some Text."
+    );
   });
 });
 
@@ -179,13 +211,16 @@ describe("Delete Question", () => {
     Question.deleteOne = conditions => {
       return {
         exec: async () => {
-          expect(conditions._id).toEqual(1);
+          expect(conditions).toEqual({
+            _id: questionIds[0],
+            userId: userIds[0]
+          });
         }
       };
     };
   });
 
   it("should update the right question", () => {
-    QuestionService.deleteQuestion(1);
+    QuestionService.deleteQuestion(userIds[0], questionIds[0]);
   });
 });
