@@ -84,4 +84,23 @@ export default class VoteService {
   public static getVoteTotalForAnswer(answerId: ObjectId): Promise<number> {
     return this.getVoteTotalForEntity({ answerId });
   }
+
+  /*
+  * Get the vote a user made for a certain entity
+  */
+  private static getVoteByUserForEntity(userId: ObjectId, {
+    questionId,
+    answerId
+  }: IVoteSubjectId): Promise<IVote> {
+    this.checkNumberIds({ questionId, answerId });
+    return Vote.findOne({userId, questionId, answerId}).exec();
+  }
+
+  public static getVoteByUserForQuestion(userId: ObjectId, questionId: ObjectId): Promise<IVote> {
+    return this.getVoteByUserForEntity(userId, { questionId });
+  }
+
+  public static getVoteByUserForAnswer(userId: ObjectId, answerId: ObjectId): Promise<IVote> {
+    return this.getVoteByUserForEntity(userId, { answerId });
+  }
 }

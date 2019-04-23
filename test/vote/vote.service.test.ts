@@ -23,16 +23,16 @@ const answerId = new ObjectId();
 
 describe("Number ids", () => {
   it("Should run with one id", () => {
-    expect(checkNumberIds({questionId: 1})).toBeUndefined();
-    expect(checkNumberIds({answerId: 1})).toBeUndefined();
+    expect(checkNumberIds({questionId})).toBeUndefined();
+    expect(checkNumberIds({answerId})).toBeUndefined();
   });
 
   it("Should not run with two ids", () => {
-    expect(() => checkNumberIds({questionId: 1, answerId: 1})).toThrow();
+    return expect(() => checkNumberIds({questionId, answerId})).toThrowError();
   });
 
   it("Should not run with no ids", () => {
-    expect(() => checkNumberIds({})).toThrowError();
+    return expect(() => checkNumberIds({})).toThrowError();
   });
 });
 
@@ -67,7 +67,7 @@ describe("Getting votes", () => {
       }
     ];
 
-    Vote.find = (condition ) => {
+    Vote.find = (condition: IVoteSubjectId) => {
       return {
         exec: async () =>
           new Promise(() => {
@@ -98,22 +98,20 @@ describe("Getting votes", () => {
   });
 
   it("should return votes for answers", () => {
-    VoteService.getVotesForAnswer(answerId).then(votes => {
-      expect(votes).toEqual([
-        {
-          _id: voteIds[2],
-          userId: userId,
-          value: 1,
-          answerId: answerId
-        },
-        {
-          _id: voteIds[3],
-          userId: userId,
-          value: 1,
-          answerId: answerId
-        }
-      ]);
-    });
+    expect(VoteService.getVotesForAnswer(answerId)).resolves.toEqual([
+      {
+        _id: voteIds[2],
+        userId: userId,
+        value: 1,
+        answerId: answerId
+      },
+      {
+        _id: voteIds[3],
+        userId: userId,
+        value: 1,
+        answerId: answerId
+      }
+    ]);
   });
 });
 
@@ -172,22 +170,56 @@ describe("Get vote total", () => {
 
     Vote.find = (condition: IVoteSubjectId) => {
       return {
-        exec: async () =>
-          new Promise(() => {
-            if (condition.questionId === questionId) return questionVotes;
-            else if (condition.answerId === answerId) return answerVotes;
-          })
+        exec: async () => {
+          if (condition.questionId === questionId) 
+            return questionVotes;
+          else if (condition.answerId === answerId)
+            return answerVotes;
+        }
       };
     };
   });
 
   it("should get the vote total for questions", () => {
-    VoteService.getVoteTotalForQuestion(questionId)
-      .then(total => expect(total).toEqual(2));
+    return expect(VoteService.getVoteTotalForQuestion(questionId))
+      .resolves.toEqual(2);
   });
 
   it("should get the vote total for answers", () => {
-    VoteService.getVoteTotalForAnswer(answerId)
-      .then(total => expect(total).toEqual(0));
+    return expect(VoteService.getVoteTotalForAnswer(answerId))
+      .resolves.toEqual(0);
+  });
+});
+
+describe("Get votes by user for entity", () => {
+  beforeEach(() => {
+
+    Vote.findOne = (params: any) => {
+      return {
+        exec: async () => {
+
+          if (params.questionId) {
+            expect(params).toEqual({
+              userId,
+              questionId,
+            });
+          } else {
+            expect(params).toEqual({
+              userId,
+              answerId,
+            });
+          }
+        }
+      }
+    }
+
+  });
+
+  it("should find the vote for a question", () => {
+    VoteService.getVoteByUserForQuestion(userId, questionId);
+  });
+
+  it("should find the vote for a answer", () => {
+    VoteService.getVoteByUserForAnswer(userId, answerId);
   });
 });
