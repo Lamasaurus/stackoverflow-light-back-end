@@ -7,6 +7,7 @@ export interface IQuestion extends ISchemaBasis {
   text: string;
   postTime: number;
   voteTotal?: number;
+  answerTotal?: number;
 }
 
 const questionSchema = new Schema(

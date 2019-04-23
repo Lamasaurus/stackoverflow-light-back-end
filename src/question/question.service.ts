@@ -4,18 +4,26 @@ import Question, { IQuestion } from "./question.model";
 import VoteService from "./../vote/vote.service";
 
 import config from "./../../config/config.json";
+import AnswerService from "../answer/answer.service";
 
 export default class QuestionService {
   /*
    * Get the vote total from the vote service and add it to the question object
    */
-  private static async addQuestionVotes(
-    question: IQuestion
-  ): Promise<IQuestion> {
-    question.voteTotal = await VoteService.getVoteTotalForQuestion(
-      question._id
-    );
-    return question;
+  private static async getQuestionVoteTotal(
+    questionId: ObjectId
+  ): Promise<number> {
+    return await VoteService.getVoteTotalForQuestion(questionId);
+  }
+
+  /*
+   * Get the vote total from the vote service and add it to the question object
+   */
+  private static async getQuestionAnswerTotal(
+    questionId: ObjectId
+  ): Promise<number> {
+    const answers = await AnswerService.getAnswersForQuestion(questionId);
+    return answers.length;
   }
 
   /*
@@ -24,7 +32,12 @@ export default class QuestionService {
    */
   private static getQuestionScore(question: IQuestion): number {
     const currentTime = new Date().getTime();
-    return question.voteTotal / (question.postTime / currentTime / 60000);
+    return question.voteTotal / ((question.postTime - currentTime) / 60000);
+  }
+
+  private static async prepareQuestion(question: IQuestion) {
+    question.answerTotal = await this.getQuestionAnswerTotal(question._id);
+    question.voteTotal = await this.getQuestionVoteTotal(question._id);
   }
 
   /*
@@ -33,35 +46,31 @@ export default class QuestionService {
   public static async getQuestionById(
     questionId: ObjectId
   ): Promise<IQuestion> {
-    const question = await Question.findById(questionId).exec();
-    return this.addQuestionVotes(question);
+    const question = await Question.findById(questionId).lean().exec();
+    await this.prepareQuestion(question);
+    return question;
   }
 
   /*
    * Get the top questions as defined in the config file.
    * @param increment: number, defines what the page
    */
-  public static async getTopQuestions(
-    increment: number = 0
-  ): Promise<IQuestion[]> {
+  public static async getTopQuestions(): Promise<IQuestion[]> {
     const questions: IQuestion[] = await Question.find().lean().exec();
 
     // Add the vote total to each question
     // This has to be done in a for...of because map, reduce and sort don't accept
     // async functions.
-    for (let question of questions)
-      question = await this.addQuestionVotes(question);
+    for (const question of questions)
+      await this.prepareQuestion(question);
 
     // Sort the questions
     const popularQuestions = await questions.sort((q1, q2) => {
-      return this.getQuestionScore(q2) - this.getQuestionScore(q1);
+      return this.getQuestionScore(q1) - this.getQuestionScore(q2);
     });
 
     // Return the right slice
-    return popularQuestions.slice(
-      increment * config.numTopQuestions,
-      increment * config.numTopQuestions + config.numTopQuestions
-    );
+    return popularQuestions;
   }
 
   public static addQuestion(

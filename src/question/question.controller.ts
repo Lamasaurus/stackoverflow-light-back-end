@@ -6,10 +6,16 @@ import { jwtMiddleware } from "../midleware/token.midleware";
 
 const QuestionRouter = Router();
 
-QuestionRouter.get("/top", (req, res, next) => {
-  const page = req.body.page;
+QuestionRouter.get("/", (req, res, next) => {
+  const questionId = req.query.questionId;
 
-  QuestionService.getTopQuestions(page)
+  QuestionService.getQuestionById(questionId)
+    .then(question => res.json(question))
+    .catch(err => res.send("Something went wrong!"));
+});
+
+QuestionRouter.get("/top", (req, res, next) => {
+  QuestionService.getTopQuestions()
     .then(questions => res.json(questions))
     .catch(err => res.send("Something went wrong!"));
 });
@@ -19,7 +25,7 @@ QuestionRouter.post("/", jwtMiddleware, (req, res, next) => {
   const { userId } = req.user;
 
   QuestionService.addQuestion(userId, title, text)
-    .then(product => res.send("Question succesfully added!"))
+    .then(product => res.json(product))
     .catch(err => res.satus(500).send("Failed to add question."));
 });
 

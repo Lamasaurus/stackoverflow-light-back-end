@@ -5,8 +5,10 @@ import QuestionService from "./../../src/question/question.service";
 
 import Question, { IQuestion } from "./../../src/question/question.model";
 import VoteService from "./../../src/vote/vote.service";
+import AnswerService from "./../../src/answer/answer.service";
 
 import config from "./../../config/config.json";
+import Answer from "../../src/answer/answer.model";
 
 const questionIds = [
   new ObjectId(),
@@ -22,13 +24,18 @@ const userIds = [
   new ObjectId()
 ];
 
+VoteService.getVoteTotalForQuestion = async (
+  questionId: mongoose.Schema.Types.ObjectId
+) => questionIds.indexOf(questionId);
+
+AnswerService.getAnswersForQuestion = async (
+  questionId: mongoose.Schema.Types.ObjectId
+) => [{_id: ObjectId(), userId: ObjectId(), questionId: ObjectId(), text: "Some text.", postTime: 0}];
+
 describe("Get top questions", () => {
   beforeEach(() => {
     config.numTopQuestions = 3;
 
-    VoteService.getVoteTotalForQuestion = async (
-      questionId: mongoose.Schema.Types.ObjectId
-    ) => questionIds.indexOf(questionId);
 
     const questions: IQuestion[] = [
       {
@@ -75,51 +82,44 @@ describe("Get top questions", () => {
   });
 
   it("should give back the top questions", () => {
-    QuestionService.getTopQuestions().then(topQuestions => {
-      expect(topQuestions).toHaveLength(3);
-      expect(topQuestions).toEqual([
-        {
-          _id: questionIds[3],
-          userId: userIds[3],
-          title: "A title",
-          text: "Some text.",
-          postTime: 1000,
-          voteTotal: 3
-        },
-        {
-          _id: questionIds[2],
-          userId: userIds[2],
-          title: "A title",
-          text: "Some text.",
-          postTime: 1000,
-          voteTotal: 2
-        },
-        {
-          _id: questionIds[1],
-          userId: userIds[1],
-          title: "A title",
-          text: "Some text.",
-          postTime: 1000,
-          voteTotal: 1
-        }
-      ]);
-    });
-  });
-
-  it("should give back the top questions of increment 1", () => {
-    QuestionService.getTopQuestions(1).then(topQuestions => {
-      expect(topQuestions).toHaveLength(1);
-      expect(topQuestions).toEqual([
-        {
-          _id: questionIds[0],
-          userId: userIds[0],
-          title: "A title",
-          text: "Some text.",
-          postTime: 1000,
-          voteTotal: 0
-        }
-      ]);
-    });
+    expect(QuestionService.getTopQuestions()).resolves.toEqual([
+      {
+        _id: questionIds[3],
+        userId: userIds[3],
+        title: "A title",
+        text: "Some text.",
+        postTime: 1000,
+        voteTotal: 3,
+        answerTotal: 1,
+      },
+      {
+        _id: questionIds[2],
+        userId: userIds[2],
+        title: "A title",
+        text: "Some text.",
+        postTime: 1000,
+        voteTotal: 2,
+        answerTotal: 1,
+      },
+      {
+        _id: questionIds[1],
+        userId: userIds[1],
+        title: "A title",
+        text: "Some text.",
+        postTime: 1000,
+        voteTotal: 1,
+        answerTotal: 1,
+      },
+      {
+        _id: questionIds[0],
+        userId: userIds[0],
+        title: "A title",
+        text: "Some text.",
+        postTime: 1000,
+        voteTotal: 0,
+        answerTotal: 1,
+      }
+    ]);
   });
 });
 
@@ -127,29 +127,32 @@ describe("Get question by id", () => {
   beforeEach(() => {
     Question.findById = (id: mongoose.Schema.Types.ObjectId) => {
       return {
-        exec: async () => {
+        lean: () => {
           return {
-            _id: questionIds[0],
-            userId: userIds[0],
-            title: "A title",
-            text: "Some text.",
-            postTime: 1000
-          };
+            exec: async () => {
+              return {
+                _id: questionIds[0],
+                userId: userIds[0],
+                title: "A title",
+                text: "Some text.",
+                postTime: 1000
+              };
+            }
+          }
         }
       };
     };
   });
 
-  it("should find one question with a vote total.", () => {
-    QuestionService.getQuestionById(userIds[0]).then(question => {
-      return expect(question).toEqual({
-        _id: questionIds[0],
-        userId: userIds[0],
-        title: "A title",
-        text: "Some text.",
-        postTime: 1000,
-        voteTotal: 0
-      });
+  it("should find one question with a vote and answer total.", () => {
+    return expect(QuestionService.getQuestionById(questionIds[0])).resolves.toEqual({
+      _id: questionIds[0],
+      userId: userIds[0],
+      title: "A title",
+      text: "Some text.",
+      postTime: 1000,
+      voteTotal: 0,
+      answerTotal: 1
     });
   });
 });
