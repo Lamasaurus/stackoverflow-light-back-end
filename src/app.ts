@@ -7,10 +7,10 @@ import config from "./../config/config.json";
 
 import { authorizationErrorHandler } from "./midleware/token.midleware";
 
-import UserRouter from "./user/user.controller";
-import QuestionController from "./question/question.controller";
-import AnswerController from "./answer/answer.controller";
-import VoteController from "./vote/vote.controller";
+import UserRouter from "./controllers/user/user.controller";
+import QuestionController from "./controllers/question/question.controller";
+import AnswerController from "./controllers/answer/answer.controller";
+import VoteController from "./controllers/vote/vote.controller";
 
 const app = express();
 

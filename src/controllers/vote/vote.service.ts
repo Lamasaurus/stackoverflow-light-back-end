@@ -1,4 +1,4 @@
-import { ObjectId } from "../helpers/mongoose.helper";
+import { ObjectId } from "../../helpers/mongoose.helper";
 
 import Vote, { IVoteSubjectId, IVote } from "./vote.model";
 

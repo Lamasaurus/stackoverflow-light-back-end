@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { ISchemaBasis } from "../helpers/mongoose.helper";
+import { ISchemaBasis } from "../../helpers/mongoose.helper";
 
 export interface IUser extends ISchemaBasis {
   name: string;

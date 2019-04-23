@@ -1,9 +1,9 @@
-import UserService, { ITokenResponse } from "../../src/user/user.service";
+import UserService, { ITokenResponse } from "../../src/controllers/user/user.service";
 
 import mongoose, { Model } from "mongoose";
 const ObjectId = mongoose.Types.ObjectId;
 
-import User from "../../src/user/user.model";
+import User from "../../src/controllers/user/user.model";
 import jsonwebtoken from "jsonwebtoken";
 
 const testUserId = new ObjectId();
@@ -71,7 +71,7 @@ describe("Register new user", () => {
       };
     };
 
-    jest.mock("./../../src/user/user.model.ts", () => {
+    jest.mock("./../../src/controllers/user/user.model.ts", () => {
       return jest.fn().mockImplementation(
         (userId: mongoose.Types.ObjectId, params: any): Model => {
           return {

@@ -3,8 +3,8 @@ const ObjectId = mongoose.Types.ObjectId;
 
 import rewire from 'rewire';
 
-import VoteService from "./../../src/vote/vote.service";
-import Vote, { IVoteSubjectId } from "./../../src/vote/vote.model";
+import VoteService from "./../../src/controllers/vote/vote.service";
+import Vote, { IVoteSubjectId } from "./../../src/controllers/vote/vote.model";
 import { exportAllDeclaration, identifier } from "@babel/types";
 
 const VoteServiceRewire = rewire("./../../dist/src/vote/vote.service");

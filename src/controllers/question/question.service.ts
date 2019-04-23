@@ -1,9 +1,9 @@
-import { ObjectId } from "../helpers/mongoose.helper";
+import { ObjectId } from "../../helpers/mongoose.helper";
 
 import Question, { IQuestion } from "./question.model";
 import VoteService from "./../vote/vote.service";
 
-import config from "./../../config/config.json";
+import config from "./../../../config/config.json";
 import AnswerService from "../answer/answer.service";
 
 export default class QuestionService {

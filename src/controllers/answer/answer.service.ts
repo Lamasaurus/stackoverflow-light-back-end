@@ -1,7 +1,7 @@
 import Answer, { IAnswer } from "./answer.model";
 import VoteService from "./../vote/vote.service";
 
-import { ObjectId } from "../helpers/mongoose.helper";
+import { ObjectId } from "../../helpers/mongoose.helper";
 
 export default class AnswerService {
   /*

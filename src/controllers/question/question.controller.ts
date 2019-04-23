@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import QuestionService from "./question.service";
 
-import { jwtMiddleware } from "../midleware/token.midleware";
+import { jwtMiddleware } from "../../midleware/token.midleware";
 
 const QuestionRouter = Router();
 

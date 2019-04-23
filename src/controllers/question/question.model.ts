@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { ObjectId, ISchemaBasis } from "../helpers/mongoose.helper";
+import { ObjectId, ISchemaBasis } from "../../helpers/mongoose.helper";
 
 export interface IQuestion extends ISchemaBasis {
   userId: ObjectId;

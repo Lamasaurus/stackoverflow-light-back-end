@@ -3,8 +3,8 @@ import User, { IUser } from "./user.model";
 import crypto from "crypto";
 import jsonwebtoken from "jsonwebtoken";
 
-import config from "./../../config/config.json";
-import { ObjectId } from "../helpers/mongoose.helper";
+import config from "./../../../config/config.json";
+import { ObjectId } from "../../helpers/mongoose.helper";
 
 export default class UserService {
   /*

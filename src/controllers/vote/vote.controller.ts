@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import VoteService from "./vote.service";
 
-import { jwtMiddleware } from "../midleware/token.midleware";
+import { jwtMiddleware } from "../../midleware/token.midleware";
 
 const VoteRouter = Router();
 

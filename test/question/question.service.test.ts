@@ -1,14 +1,11 @@
 import mongoose, { Model } from "mongoose";
 const ObjectId = mongoose.Types.ObjectId;
 
-import QuestionService from "./../../src/question/question.service";
+import QuestionService from "./../../src/controllers/question/question.service";
 
-import Question, { IQuestion } from "./../../src/question/question.model";
-import VoteService from "./../../src/vote/vote.service";
-import AnswerService from "./../../src/answer/answer.service";
-
-import config from "./../../config/config.json";
-import Answer from "../../src/answer/answer.model";
+import Question, { IQuestion } from "./../../src/controllers/question/question.model";
+import VoteService from "./../../src/controllers/vote/vote.service";
+import AnswerService from "./../../src/controllers/answer/answer.service";
 
 const questionIds = [
   new ObjectId(),
@@ -34,9 +31,6 @@ AnswerService.getAnswersForQuestion = async (
 
 describe("Get top questions", () => {
   beforeEach(() => {
-    config.numTopQuestions = 3;
-
-
     const questions: IQuestion[] = [
       {
         _id: questionIds[0],
@@ -159,7 +153,7 @@ describe("Get question by id", () => {
 
 describe("Add Question", () => {
   beforeEach(() => {
-    jest.mock("./../../src/question/question.model.ts", () => {
+    jest.mock("./../../src/controllers/question/question.model.ts", () => {
       return jest.fn().mockImplementation(
         (
           userId: mongoose.Schema.Types.ObjectId,

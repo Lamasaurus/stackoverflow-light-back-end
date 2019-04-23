@@ -1,10 +1,10 @@
 import mongoose, { Model } from "mongoose";
 const ObjectId = mongoose.Types.ObjectId;
 
-import AnswerService from "./../../src/answer/answer.service";
+import AnswerService from "./../../src/controllers/answer/answer.service";
 
-import Answer from "./../../src/answer/answer.model";
-import VoteService from "./../../src/vote/vote.service";
+import Answer from "./../../src/controllers/answer/answer.model";
+import VoteService from "./../../src/controllers/vote/vote.service";
 
 const answerId = new ObjectId();
 const userId = new ObjectId();
@@ -50,7 +50,7 @@ describe("Get answer for question", () => {
 });
 describe("Add answer", () => {
   beforeEach(() => {
-    jest.mock("./../../src/answer/answer.model.ts", () => {
+    jest.mock("./../../src/controllers/answer/answer.model.ts", () => {
       return jest.fn().mockImplementation(
         (userId: number, questionId: number, text: string): Model => {
           return {
