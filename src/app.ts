@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import cors from "cors";
 
 import config from "./../config/config.json";
 
@@ -13,16 +14,19 @@ import VoteController from "./vote/vote.controller";
 
 const app = express();
 
+// Allow CORS
+app.use(cors());
+
 // Add midlewear to pars data
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(authorizationErrorHandler);
 
-app.use("/user", UserRouter);
-app.use("/question", QuestionController);
-app.use("/answer", AnswerController);
-app.use("/vote", VoteController);
+app.use("/api/user", UserRouter);
+app.use("/api/question", QuestionController);
+app.use("/api/answer", AnswerController);
+app.use("/api/vote", VoteController);
 
 // start server
 const port = config.port || 4000;

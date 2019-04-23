@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 // Export a class that just extends ObjectId to make includes easier
 export class ObjectId extends mongoose.Types.ObjectId{
