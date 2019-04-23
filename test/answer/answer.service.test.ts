@@ -12,7 +12,7 @@ const questionId = new ObjectId();
 
 describe("Get answer for question", () => {
   beforeEach(() => {
-    VoteService.getVoteTotalForQuestion = async (answerId: number) => answerId;
+    VoteService.getVoteTotalForAnswer = async (answerId: mongoose.Types.ObjectId) => 1;
 
     const answers = [
       {
@@ -38,14 +38,14 @@ describe("Get answer for question", () => {
   });
 
   it("should return the answers with vote total.", () => {
-    expect(AnswerService.getAnswersForQuestion(1)).resolves.toEqual({
+    return expect(AnswerService.getAnswersForQuestion(questionId)).resolves.toEqual([{
       _id: answerId,
       userId: userId,
       questionId: questionId,
       text: "Some text.",
       postTime: 0,
       voteTotal: 1
-    });
+    }]);
   });
 });
 describe("Add answer", () => {

@@ -7,7 +7,7 @@ import { jwtMiddleware } from "../midleware/token.midleware";
 const AnswerRouter = Router();
 
 AnswerRouter.get("/", (req, res, next) => {
-  const questionId = req.body.questionId;
+  const questionId = req.query.questionId;
 
   AnswerService.getAnswersForQuestion(questionId)
     .then(answers => res.json(answers))
@@ -19,7 +19,7 @@ AnswerRouter.post("/", jwtMiddleware, (req, res, next) => {
 
   AnswerService.addAnswer(userId, questionId, text)
     .then(product => res.send("Answer succesfully added!"))
-    .catch(err => res.satus(500).send("Failed to add answer."));
+    .catch(err => res.send("Failed to add answer."));
 });
 
 AnswerRouter.put("/", jwtMiddleware, (req, res, next) => {
@@ -28,7 +28,7 @@ AnswerRouter.put("/", jwtMiddleware, (req, res, next) => {
 
   AnswerService.updateAnswer(userId, answerId, text)
     .then(product => res.send("Answer succesfully updated!"))
-    .catch(err => res.satus(500).send("Failed to update answer."));
+    .catch(err => res.send("Failed to update answer."));
 });
 
 AnswerRouter.delete("/", jwtMiddleware, (req, res, next) => {
@@ -37,7 +37,7 @@ AnswerRouter.delete("/", jwtMiddleware, (req, res, next) => {
 
   AnswerService.deleteAnswer(userId, answerId)
     .then(product => res.send("Answer succesfully deleted!"))
-    .catch(err => res.satus(500).send("Failed to delete answer."));
+    .catch(err => res.send("Failed to delete answer."));
 });
 
 export default AnswerRouter;
