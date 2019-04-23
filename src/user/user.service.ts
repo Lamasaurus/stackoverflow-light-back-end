@@ -1,9 +1,10 @@
-import User from "./user.model";
+import User, { IUser } from "./user.model";
 
 import crypto from "crypto";
 import jsonwebtoken from "jsonwebtoken";
 
 import config from "./../../config/config.json";
+import { ObjectId } from "../helpers/mongoose.helper";
 
 export default class UserService {
   /*
@@ -19,7 +20,7 @@ export default class UserService {
   /*
   * Create a token for the user with the users name and id
   */
-  private static createToken(userId: number, userName: string): String {
+  private static createToken(userId: ObjectId, userName: string): String {
     return jsonwebtoken.sign(
       { userId, userName },
       config.authentication.secret,
@@ -34,12 +35,12 @@ export default class UserService {
   public static async authenticateUser(
     userName: string,
     password: string
-  ): Promise<String> {
+  ): Promise<ITokenResponse> {
     // Hash the incoming password
     const hashedPassword = this.hashString(password);
 
     // Look for a user with the given user name and password
-    const user = await User.findOne({
+    const user: IUser = await User.findOne({
       name: userName,
       authHash: hashedPassword
     }).exec();
@@ -50,7 +51,7 @@ export default class UserService {
 
     // Create and return the token
     const token = this.createToken(user._id, userName);
-    return token;
+    return { token, userId: user._id };
   }
 
   public static changePassword(userId: number, newPassword: string) {
@@ -67,4 +68,9 @@ export default class UserService {
     const newUser = new User({name: userName, authHash: this.hashString(password)});
     newUser.save();
   }
+}
+
+export interface ITokenResponse {
+  token: String;
+  userId: ObjectId;
 }

@@ -1,9 +1,10 @@
-import UserService from "../../src/user/user.service";
+import UserService, { ITokenResponse } from "../../src/user/user.service";
 
 import mongoose, { Model } from "mongoose";
 const ObjectId = mongoose.Types.ObjectId;
 
 import User from "../../src/user/user.model";
+import jsonwebtoken from "jsonwebtoken";
 
 const testUserId = new ObjectId();
 
@@ -24,11 +25,16 @@ describe("Authenticate User", () => {
         }
       };
     };
+
+    jsonwebtoken.sign = (params: any, secret: string, options: any) => {
+      return "Token";
+    }
   });
 
   it("should authenticate when user and pasword are correct.", () => {
-    UserService.authenticateUser("Superman", "password").then(token => {
-      expect(typeof token).toEqual("string");
+    return expect(UserService.authenticateUser("Superman", "password")).resolves.toEqual({
+      token: "Token",
+      userId: testUserId
     });
   });
 
