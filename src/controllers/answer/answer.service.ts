@@ -30,16 +30,20 @@ export default class AnswerService {
     userId: ObjectId,
     questionId: ObjectId,
     text: string
-  ): Promise<any> {
+  ): Promise<IAnswer> {
     const newAnswer = new Answer({ userId, questionId, text });
     return newAnswer.save();
   }
 
-  public static updateAnswer(userId: ObjectId, answerId: ObjectId, text: string): Promise<any> {
+  public static updateAnswer(userId: ObjectId, answerId: ObjectId, text: string): Promise<IAnswer[]> {
     return Answer.findOneAndUpdate({ _id: answerId, userId }, { text }).exec();
   }
 
-  public static deleteAnswer(userId: ObjectId, answerId: ObjectId): Promise<any> {
+  public static deleteAnswer(userId: ObjectId, answerId: ObjectId): Promise<IAnswer[]> {
     return Answer.deleteOne({ _id: answerId, userId }).exec();
+  }
+
+  public static findAnswerContaining(text: string): Promise<IAnswer[]> {
+    return Answer.find({ text: { $regex: `.*${text}.*`}}).exec();
   }
 }

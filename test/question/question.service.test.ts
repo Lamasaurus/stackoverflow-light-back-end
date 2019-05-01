@@ -3,7 +3,9 @@ const ObjectId = mongoose.Types.ObjectId;
 
 import QuestionService from "./../../src/controllers/question/question.service";
 
-import Question, { IQuestion } from "./../../src/controllers/question/question.model";
+import Question, {
+  IQuestion,
+} from "./../../src/controllers/question/question.model";
 import VoteService from "./../../src/controllers/vote/vote.service";
 import AnswerService from "./../../src/controllers/answer/answer.service";
 
@@ -11,23 +13,31 @@ const questionIds = [
   new ObjectId(),
   new ObjectId(),
   new ObjectId(),
-  new ObjectId()
+  new ObjectId(),
 ];
 
 const userIds = [
   new ObjectId(),
   new ObjectId(),
   new ObjectId(),
-  new ObjectId()
+  new ObjectId(),
 ];
 
 VoteService.getVoteTotalForQuestion = async (
-  questionId: mongoose.Schema.Types.ObjectId
+  questionId: mongoose.Schema.Types.ObjectId,
 ) => questionIds.indexOf(questionId);
 
 AnswerService.getAnswersForQuestion = async (
-  questionId: mongoose.Schema.Types.ObjectId
-) => [{_id: ObjectId(), userId: ObjectId(), questionId: ObjectId(), text: "Some text.", postTime: 0}];
+  questionId: mongoose.Schema.Types.ObjectId,
+) => [
+  {
+    _id: ObjectId(),
+    userId: ObjectId(),
+    questionId: ObjectId(),
+    text: "Some text.",
+    postTime: 0,
+  },
+];
 
 describe("Get top questions", () => {
   beforeEach(() => {
@@ -37,29 +47,29 @@ describe("Get top questions", () => {
         userId: userIds[0],
         title: "A title",
         text: "Some text.",
-        postTime: 1000
+        postTime: 1000,
       },
       {
         _id: questionIds[1],
         userId: userIds[1],
         title: "A title",
         text: "Some text.",
-        postTime: 1000
+        postTime: 1000,
       },
       {
         _id: questionIds[2],
         userId: userIds[2],
         title: "A title",
         text: "Some text.",
-        postTime: 1000
+        postTime: 1000,
       },
       {
         _id: questionIds[3],
         userId: userIds[3],
         title: "A title",
         text: "Some text.",
-        postTime: 1000
-      }
+        postTime: 1000,
+      },
     ];
 
     Question.find = () => {
@@ -68,9 +78,9 @@ describe("Get top questions", () => {
           return {
             exec: async () => {
               return questions;
-            }
+            },
           };
-        }
+        },
       };
     };
   });
@@ -112,7 +122,7 @@ describe("Get top questions", () => {
         postTime: 1000,
         voteTotal: 0,
         answerTotal: 1,
-      }
+      },
     ]);
   });
 });
@@ -129,24 +139,26 @@ describe("Get question by id", () => {
                 userId: userIds[0],
                 title: "A title",
                 text: "Some text.",
-                postTime: 1000
+                postTime: 1000,
               };
-            }
-          }
-        }
+            },
+          };
+        },
       };
     };
   });
 
   it("should find one question with a vote and answer total.", () => {
-    return expect(QuestionService.getQuestionById(questionIds[0])).resolves.toEqual({
+    return expect(
+      QuestionService.getQuestionById(questionIds[0]),
+    ).resolves.toEqual({
       _id: questionIds[0],
       userId: userIds[0],
       title: "A title",
       text: "Some text.",
       postTime: 1000,
       voteTotal: 0,
-      answerTotal: 1
+      answerTotal: 1,
     });
   });
 });
@@ -158,16 +170,16 @@ describe("Add Question", () => {
         (
           userId: mongoose.Schema.Types.ObjectId,
           title: string,
-          text: string
+          text: string,
         ): Model => {
           return {
             save: () => {
               expect(userId).toEqual(userId[0]);
               expect(title).toEqual("A title");
               expect(text).toEqual("Some Text.");
-            }
+            },
           };
-        }
+        },
       );
     });
   });
@@ -184,11 +196,11 @@ describe("Update Question", () => {
         exec: async () => {
           expect(params).toEqual({
             _id: questionIds[0],
-            userId: userIds[0]
+            userId: userIds[0],
           });
           expect(title).toEqual("A Title");
           expect(text).toEqual("Some Text.");
-        }
+        },
       };
     };
   });
@@ -198,7 +210,7 @@ describe("Update Question", () => {
       userIds[0],
       questionIds[0],
       "A Title",
-      "Some Text."
+      "Some Text.",
     );
   });
 });
@@ -210,14 +222,44 @@ describe("Delete Question", () => {
         exec: async () => {
           expect(conditions).toEqual({
             _id: questionIds[0],
-            userId: userIds[0]
+            userId: userIds[0],
           });
-        }
+        },
       };
     };
   });
 
   it("should update the right question", () => {
     QuestionService.deleteQuestion(userIds[0], questionIds[0]);
+  });
+});
+
+describe("Find Question containing text", () => {
+  it("should send a query to find a question containing a certain string in the title or text", () => {
+    Question.find = jest.fn(params => {
+      if (params.title) {
+        expect(params).toEqual({
+          title: { $regex: ".*text.*" },
+        });
+      } else {
+        expect(params).toEqual({
+          text: { $regex: ".*text.*" },
+        });
+      }
+
+      return {
+        lean: () => {
+          return {
+            exec: async () => {
+              return [];
+            },
+          };
+        },
+      };
+    });
+
+    QuestionService.findQuestionContaining("text").then(() =>
+      Question.find.mockRestore(),
+    );
   });
 });

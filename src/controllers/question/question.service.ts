@@ -11,7 +11,7 @@ export default class QuestionService {
    * Get the vote total from the vote service and add it to the question object
    */
   private static async getQuestionVoteTotal(
-    questionId: ObjectId
+    questionId: ObjectId,
   ): Promise<number> {
     return await VoteService.getVoteTotalForQuestion(questionId);
   }
@@ -20,7 +20,7 @@ export default class QuestionService {
    * Get the vote total from the vote service and add it to the question object
    */
   private static async getQuestionAnswerTotal(
-    questionId: ObjectId
+    questionId: ObjectId,
   ): Promise<number> {
     const answers = await AnswerService.getAnswersForQuestion(questionId);
     return answers.length;
@@ -44,9 +44,11 @@ export default class QuestionService {
    * Get One specific question.
    */
   public static async getQuestionById(
-    questionId: ObjectId
+    questionId: ObjectId,
   ): Promise<IQuestion> {
-    const question = await Question.findById(questionId).lean().exec();
+    const question = await Question.findById(questionId)
+      .lean()
+      .exec();
     await this.prepareQuestion(question);
     return question;
   }
@@ -56,13 +58,14 @@ export default class QuestionService {
    * @param increment: number, defines what the page
    */
   public static async getTopQuestions(): Promise<IQuestion[]> {
-    const questions: IQuestion[] = await Question.find().lean().exec();
+    const questions: IQuestion[] = await Question.find()
+      .lean()
+      .exec();
 
     // Add the vote total to each question
     // This has to be done in a for...of because map, reduce and sort don't accept
     // async functions.
-    for (const question of questions)
-      await this.prepareQuestion(question);
+    for (const question of questions) await this.prepareQuestion(question);
 
     // Sort the questions
     const popularQuestions = await questions.sort((q1, q2) => {
@@ -76,8 +79,8 @@ export default class QuestionService {
   public static addQuestion(
     userId: ObjectId,
     title: string,
-    text: string
-  ): Promise<any> {
+    text: string,
+  ): Promise<IQuestion> {
     const newQuestion = new Question({ userId, title, text });
     return newQuestion.save();
   }
@@ -86,18 +89,47 @@ export default class QuestionService {
     userId: ObjectId,
     questionId: ObjectId,
     title: string,
-    text: string
-  ): Promise<any> {
+    text: string,
+  ): Promise<IQuestion> {
     return Question.findOneAndUpdate(
       { _id: questionId, userId },
-      { title, text }
+      { title, text },
     ).exec();
   }
 
   public static deleteQuestion(
     userId: ObjectId,
-    questionId: ObjectId
+    questionId: ObjectId,
   ): Promise<any> {
     return Question.deleteOne({ _id: questionId, userId }).exec();
+  }
+
+  /*
+   * Find all questions containing the text in its title or text body
+   */
+  public static async findQuestionContaining(
+    text: string,
+  ): Promise<IQuestion[]> {
+    const regex = { $regex: `.*${text}.*` };
+
+    let titleFinds: IQuestion[] = await Question.find({
+      title: regex,
+    })
+      .lean()
+      .exec();
+
+    let textFinds: IQuestion[] = await Question.find({
+      text: regex,
+    })
+      .lean()
+      .exec();
+
+    let foundQuestions: IQuestion[] = titleFinds.concat(textFinds);
+
+    await Promise.all(
+      foundQuestions.map(question => this.prepareQuestion(question)),
+    );
+
+    return foundQuestions;
   }
 }

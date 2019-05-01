@@ -107,3 +107,21 @@ describe("Delete answer", () => {
     AnswerService.deleteAnswer(userId, answerId);
   });
 });
+
+describe("Find answers with text", () => {
+  it("should send a query to get answers that contain a certain text", () => {
+    Answer.find = jest.fn((params: any) => {
+      expect(params).toEqual({
+        "text": { $regex: ".*text.*"},
+      });
+
+      return {
+        exec: async () => {}
+      };
+    });
+
+    AnswerService.findAnswerContaining("text");
+
+    Answer.find.mockRestore();
+  });
+});
