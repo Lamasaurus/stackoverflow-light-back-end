@@ -1,6 +1,6 @@
 {
   "mongo": {
-    "uri": "mongodb://admin:pwd@localhost:27017/data?authSource=admin",
+    "uri": "mongodb://admin:pwd@mongo:27017/data?authSource=admin",
     "options": {
       "useCreateIndex": true,
       "useNewUrlParser": true

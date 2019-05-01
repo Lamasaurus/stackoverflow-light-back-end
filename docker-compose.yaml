@@ -1,0 +1,19 @@
+version: "3.5"
+
+services:
+  stackoverflow-light-backend:
+    image: node:10-alpine
+    restart: always
+    volumes:
+      - ./dist:/dist
+      - ./node_modules:/node_modules
+    ports:
+      - 4000:4000
+    networks:
+      - stackoverflow-light-net
+    command:
+      "node ./dist/src/app.js"
+
+networks:
+  stackoverflow-light-net:
+    external: true
