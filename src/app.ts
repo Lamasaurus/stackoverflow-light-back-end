@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
+import path from "path";
 
 import config from "./../config/config.json";
 
@@ -29,6 +30,21 @@ app.use("/api/question", QuestionController);
 app.use("/api/answer", AnswerController);
 app.use("/api/vote", VoteController);
 app.use("/api/search", SearchController);
+
+app.use(
+  express.static(
+    path.join(
+      __dirname,
+      "/../build",
+    ),
+  ),
+);
+
+//build mode
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname+'/../build/index.html'));
+})
+
 
 // start server
 const port = config.port || 4000;

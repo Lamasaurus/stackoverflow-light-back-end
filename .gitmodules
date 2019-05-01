@@ -1,0 +1,3 @@
+[submodule "frontend"]
+	path = frontend
+	url = git@github.com:Lamasaurus/stackoverflow-light-front-end.git
