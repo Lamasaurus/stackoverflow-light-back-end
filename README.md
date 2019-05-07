@@ -15,7 +15,7 @@ npm test
 ```
 This will also show the code coverage.
 
-## Design desicions
+## Design decisions
 The application was build in Express because it offers an easy way to implement strong API's in a fast way.
 
 Each controller resides in its own folder inside of `./src/controllers/`. A controller exists of a `model` that represents a Model of a Document in the database, a `service` which implements the business logic for the controller using the model and a `controller` which implements the API using the service. Tests are in a separate `./test` folder.
