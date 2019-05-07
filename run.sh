@@ -1,10 +1,10 @@
-echo 'init backend'
+echo 'INIT BACKEND'
 npm install
 
 rm ./dist -r
 npm run build
 
-echo 'init frontend'
+echo 'INIT FRONTEND'
 git submodule update --init --recursive
 cd ./frontend
 npm install
@@ -12,5 +12,6 @@ npm install
 npm run build 
 cp -R ./build ../dist/build
 
+echo 'START DOCKER'
 cd ..
 docker-compose up
