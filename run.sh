@@ -14,4 +14,4 @@ cp -R ./build ../dist/build
 
 echo 'START DOCKER'
 cd ..
-docker-compose up
+docker-compose up -d
